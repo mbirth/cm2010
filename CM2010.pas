@@ -8,7 +8,6 @@ uses
 
 type
   TForm1 = class(TForm)
-    ComPort: TComPort;
     COMSettings: TButton;
     MultiButt: TButton;
     GroupBox1: TGroupBox;
@@ -57,6 +56,7 @@ type
     GraphDelayCtrl: TEdit;
     Label13: TLabel;
     DelayTimer: TTimer;
+    ComPort: TComPort;
     procedure COMSettingsClick(Sender: TObject);
     procedure MultiButtClick(Sender: TObject);
     procedure ComPortOpen(Sender: TObject);
@@ -248,24 +248,14 @@ begin
     Form1.AlphaBlendValue := cf.ReadInteger('Window','AlphaValue',255);
     Form1.AlphaBlend := cf.ReadBool('Window','AlphaBlend',false);
 
-    Form1.ComPort.Port := TPortType(cf.ReadInteger('Communication','Port',0)-1);
-    Form1.ComPort.BaudRate := TBaudRate(cf.ReadInteger('Communication','BaudRate',6));
-    Form1.ComPort.DataBits := TDataBits(cf.ReadInteger('Communication','DataBits',3));
-    Form1.ComPort.StopBits := TStopBits(cf.ReadInteger('Communication','StopBits',0));
-    Form1.ComPort.Parity.Bits := TParityBits(cf.ReadInteger('Communication','Parity.Bits',0));
-    Form1.ComPort.Parity.Check := cf.ReadBool('Communication','Parity.Check',false);
-    Form1.ComPort.Parity.Replace := cf.ReadBool('Communication','Parity.Replace',false);
-    Form1.ComPort.Parity.ReplaceChar := cf.ReadInteger('Communication','Parity.ReplaceChar',0);
-    Form1.ComPort.FlowControl.ControlDTR := TDTRFlowControl(cf.ReadInteger('Communication','FlowControl.DTR',1));
-    Form1.ComPort.FlowControl.ControlRTS := TRTSFlowControl(cf.ReadInteger('Communication','FlowControl.RTS',0));
-    Form1.ComPort.FlowControl.DSRSensitivity := cf.ReadBool('Communication','FlowControl.DSRSensitivity',false);
-    Form1.ComPort.FlowControl.OutCTSFlow := cf.ReadBool('Communication','FlowControl.OutCTSFlow',false);
-    Form1.ComPort.FlowControl.OutDSRFlow := cf.ReadBool('Communication','FlowControl.OutDSRFlow',false);
-    Form1.ComPort.FlowControl.TxContinueOnXoff := cf.ReadBool('Communication','FlowControl.TxContinueOnXoff',false);
-    Form1.ComPort.FlowControl.XoffChar := cf.ReadInteger('Communication','FlowControl.XoffChar',19);
-    Form1.ComPort.FlowControl.XonChar := cf.ReadInteger('Communication','FlowControl.XonChar',17);
-    Form1.ComPort.FlowControl.XonXoffIn := cf.ReadBool('Communication','FlowControl.XonXoffIn',false);
-    Form1.ComPort.FlowControl.XonXoffOut := cf.ReadBool('Communication','FlowControl.XonXoffOut',false);
+    with Form1 do begin
+      ComPort.Port := cf.ReadString('Communication','Port','COM1');
+      ComPort.BaudRate := StrToBaudRate(cf.ReadString('Communication','BaudRate','9600'));
+      ComPort.DataBits := StrToDataBits(cf.ReadString('Communication','DataBits','8'));
+      ComPort.StopBits := StrToStopBits(cf.ReadString('Communication','StopBits','1'));
+      ComPort.Parity.Bits := StrToParity(cf.ReadString('Communication','Parity','None'));
+      ComPort.FlowControl.FlowControl := StrToFlowControl(cf.ReadString('Communication','FlowControl',''));
+    end;
 
     GraphDelay := cf.ReadInteger('Slots','GraphDelay',60);
     Form1.GraphDelayBar.Position := 300-GraphDelay;
@@ -287,24 +277,14 @@ var cf: TIniFile;
 begin
   try
     cf := TIniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
-    cf.WriteInteger('Communication','Port',Ord(Form1.ComPort.Port)+1);
-    cf.WriteInteger('Communication','BaudRate',Ord(Form1.ComPort.BaudRate));
-    cf.WriteInteger('Communication','DataBits',Ord(Form1.ComPort.DataBits));
-    cf.WriteInteger('Communication','StopBits',Ord(Form1.ComPort.StopBits));
-    cf.WriteInteger('Communication','Parity.Bits',Ord(Form1.ComPort.Parity.Bits));
-    cf.WriteBool('Communication','Parity.Check',Form1.ComPort.Parity.Check);
-    cf.WriteBool('Communication','Parity.Replace',Form1.ComPort.Parity.Replace);
-    cf.WriteInteger('Communication','Parity.ReplaceChar',Form1.ComPort.Parity.ReplaceChar);
-    cf.WriteInteger('Communication','FlowControl.DTR',Ord(Form1.ComPort.FlowControl.ControlDTR));
-    cf.WriteInteger('Communication','FlowControl.RTS',Ord(Form1.ComPort.FlowControl.ControlRTS));
-    cf.WriteBool('Communication','FlowControl.DSRSensitivity',Form1.ComPort.FlowControl.DSRSensitivity);
-    cf.WriteBool('Communication','FlowControl.OutCTSFlow',Form1.ComPort.FlowControl.OutCTSFlow);
-    cf.WriteBool('Communication','FlowControl.OutDSRFlow',Form1.ComPort.FlowControl.OutDSRFlow);
-    cf.WriteBool('Communication','FlowControl.TxContinueOnXoff',Form1.ComPort.FlowControl.TxContinueOnXoff);
-    cf.WriteInteger('Communication','FlowControl.XoffChar',Form1.ComPort.FlowControl.XoffChar);
-    cf.WriteInteger('Communication','FlowControl.XonChar',Form1.ComPort.FlowControl.XonChar);
-    cf.WriteBool('Communication','FlowControl.XonXoffIn',Form1.ComPort.FlowControl.XonXoffIn);
-    cf.WriteBool('Communication','FlowControl.XonXoffOut',Form1.ComPort.FlowControl.XonXoffOut);
+    with Form1 do begin
+      cf.WriteString('Communication', 'Port', ComPort.Port);
+      cf.WriteString('Communication', 'BaudRate', BaudRateToStr(ComPort.BaudRate));
+      cf.WriteString('Communication', 'DataBits', DataBitsToStr(ComPort.DataBits));
+      cf.WriteString('Communication', 'StopBits', StopBitsToStr(ComPort.StopBits));
+      cf.WriteString('Communication', 'Parity', ParityToStr(ComPort.Parity.Bits));
+      cf.WriteString('Communication', 'FlowControl', FlowControlToStr(ComPort.FlowControl.FlowControl));
+    end;
 
     cf.WriteInteger('Slots','GraphDelay',GraphDelay);
     cf.WriteInteger('Slots','1.Color',Ord(GraphCol[1]));

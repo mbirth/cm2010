@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 195
-  Top = 109
-  Width = 716
+  Left = 197
+  Top = 176
+  Width = 721
   Height = 477
   Caption = 
     'Charge Manager 2010 --- (c)2003 by Markus Birth <mbirth@webwrite' +
@@ -135,66 +135,6 @@ object Form1: TForm1
     Height = 13
     Caption = 'secs'
   end
-  object T_1: TLabel
-    Left = 344
-    Top = 166
-    Width = 49
-    Height = 10
-    Alignment = taCenter
-    AutoSize = False
-    Caption = '---------'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -8
-    Font.Name = 'Small Fonts'
-    Font.Style = []
-    ParentFont = False
-  end
-  object T_2: TLabel
-    Left = 344
-    Top = 238
-    Width = 49
-    Height = 10
-    Alignment = taCenter
-    AutoSize = False
-    Caption = '---------'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -8
-    Font.Name = 'Small Fonts'
-    Font.Style = []
-    ParentFont = False
-  end
-  object T_3: TLabel
-    Left = 544
-    Top = 166
-    Width = 49
-    Height = 10
-    Alignment = taCenter
-    AutoSize = False
-    Caption = '---------'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -8
-    Font.Name = 'Small Fonts'
-    Font.Style = []
-    ParentFont = False
-  end
-  object T_4: TLabel
-    Left = 544
-    Top = 238
-    Width = 49
-    Height = 10
-    Alignment = taCenter
-    AutoSize = False
-    Caption = '---------'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -8
-    Font.Name = 'Small Fonts'
-    Font.Style = []
-    ParentFont = False
-  end
   object GraphDelayBar: TTrackBar
     Left = 648
     Top = 256
@@ -245,162 +185,45 @@ object Form1: TForm1
     Height = 73
     Caption = 'COM Status'
     TabOrder = 2
-    object Label1: TLabel
-      Left = 30
-      Top = 16
-      Width = 71
+    object L_CTS: TLabel
+      Left = 8
+      Top = 20
+      Width = 44
       Height = 13
-      Caption = 'Last character:'
+      Caption = 'CTS high'
+      Enabled = False
+    end
+    object L_DSR: TLabel
+      Left = 8
+      Top = 36
+      Width = 46
+      Height = 13
+      Caption = 'DSR high'
+      Enabled = False
+    end
+    object L_RLSD: TLabel
+      Left = 8
+      Top = 52
+      Width = 52
+      Height = 13
+      Caption = 'RLSD high'
+      Enabled = False
+    end
+    object Label1: TLabel
+      Left = 72
+      Top = 24
+      Width = 101
+      Height = 13
+      Caption = 'Last event character:'
     end
     object L_Time: TLabel
-      Left = 110
-      Top = 16
+      Left = 80
+      Top = 40
       Width = 73
       Height = 13
+      Alignment = taCenter
       AutoSize = False
       Caption = 'hh:mm:ss'
-    end
-    object ComLed1: TComLed
-      Left = 0
-      Top = 32
-      Width = 25
-      Height = 25
-      ComPort = ComPort
-      LedSignal = lsConn
-      Kind = lkYellowLight
-    end
-    object ComLed2: TComLed
-      Left = 24
-      Top = 32
-      Width = 25
-      Height = 25
-      ComPort = ComPort
-      LedSignal = lsCTS
-      Kind = lkBlueLight
-    end
-    object ComLed3: TComLed
-      Left = 48
-      Top = 32
-      Width = 25
-      Height = 25
-      ComPort = ComPort
-      LedSignal = lsDSR
-      Kind = lkRedLight
-    end
-    object ComLed4: TComLed
-      Left = 88
-      Top = 32
-      Width = 25
-      Height = 25
-      ComPort = ComPort
-      LedSignal = lsRing
-      Kind = lkPurpleLight
-    end
-    object ComLed5: TComLed
-      Left = 112
-      Top = 32
-      Width = 25
-      Height = 25
-      ComPort = ComPort
-      LedSignal = lsRLSD
-      Kind = lkRedLight
-    end
-    object ComLed6: TComLed
-      Left = 144
-      Top = 32
-      Width = 25
-      Height = 25
-      ComPort = ComPort
-      LedSignal = lsRx
-      Kind = lkGreenLight
-    end
-    object ComLed7: TComLed
-      Left = 160
-      Top = 32
-      Width = 25
-      Height = 25
-      ComPort = ComPort
-      LedSignal = lsTx
-      Kind = lkRedLight
-    end
-    object Label14: TLabel
-      Left = 150
-      Top = 54
-      Width = 13
-      Height = 13
-      Caption = 'Rx'
-    end
-    object Label15: TLabel
-      Left = 167
-      Top = 54
-      Width = 12
-      Height = 13
-      Caption = 'Tx'
-    end
-    object Label16: TLabel
-      Left = 114
-      Top = 56
-      Width = 21
-      Height = 10
-      Caption = 'RLSD'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -8
-      Font.Name = 'Small Fonts'
-      Font.Style = []
-      ParentFont = False
-    end
-    object Label17: TLabel
-      Left = 92
-      Top = 56
-      Width = 17
-      Height = 10
-      Caption = 'Ring'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -8
-      Font.Name = 'Small Fonts'
-      Font.Style = []
-      ParentFont = False
-    end
-    object Label18: TLabel
-      Left = 52
-      Top = 56
-      Width = 17
-      Height = 10
-      Caption = 'DSR'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -8
-      Font.Name = 'Small Fonts'
-      Font.Style = []
-      ParentFont = False
-    end
-    object Label19: TLabel
-      Left = 28
-      Top = 56
-      Width = 16
-      Height = 10
-      Caption = 'CTS'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -8
-      Font.Name = 'Small Fonts'
-      Font.Style = []
-      ParentFont = False
-    end
-    object Label20: TLabel
-      Left = 3
-      Top = 56
-      Width = 19
-      Height = 10
-      Caption = 'Conn'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -8
-      Font.Name = 'Small Fonts'
-      Font.Style = []
-      ParentFont = False
     end
   end
   object Edit1: TEdit
@@ -510,7 +333,7 @@ object Form1: TForm1
   object StatusBar: TStatusBar
     Left = 0
     Top = 431
-    Width = 708
+    Width = 713
     Height = 19
     Panels = <>
     SimplePanel = True
@@ -651,38 +474,6 @@ object Form1: TForm1
     OnChange = GraphDelayCtrlChange
     OnKeyDown = GraphDelayCtrlKeyDown
   end
-  object PB_1: TProgressBar
-    Left = 344
-    Top = 176
-    Width = 49
-    Height = 8
-    Smooth = True
-    TabOrder = 24
-  end
-  object PB_2: TProgressBar
-    Left = 344
-    Top = 248
-    Width = 49
-    Height = 8
-    Smooth = True
-    TabOrder = 25
-  end
-  object PB_3: TProgressBar
-    Left = 544
-    Top = 176
-    Width = 49
-    Height = 8
-    Smooth = True
-    TabOrder = 26
-  end
-  object PB_4: TProgressBar
-    Left = 544
-    Top = 248
-    Width = 49
-    Height = 8
-    Smooth = True
-    TabOrder = 27
-  end
   object ColorDialog: TColorDialog
     Left = 664
     Top = 112
@@ -707,10 +498,6 @@ object Form1: TForm1
     FlowControl.ControlRTS = rtsDisable
     FlowControl.XonXoffOut = False
     FlowControl.XonXoffIn = False
-    OnAfterOpen = ComPortAfterOpen
-    OnAfterClose = ComPortAfterClose
-    OnRxChar = ComPortRxChar
-    OnRxFlag = ComPortRxFlag
     Left = 160
     Top = 120
   end
