@@ -4,16 +4,13 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ExtCtrls, StdCtrls, CPort, ComCtrls, IniFiles;
+  Dialogs, ExtCtrls, StdCtrls, CPort, ComCtrls, IniFiles, CPortCtl, DateUtils;
 
 type
   TForm1 = class(TForm)
     COMSettings: TButton;
     MultiButt: TButton;
     GroupBox1: TGroupBox;
-    L_CTS: TLabel;
-    L_DSR: TLabel;
-    L_RLSD: TLabel;
     Label1: TLabel;
     L_Time: TLabel;
     Edit1: TEdit;
@@ -57,14 +54,29 @@ type
     Label13: TLabel;
     DelayTimer: TTimer;
     ComPort: TComPort;
+    PB_1: TProgressBar;
+    PB_2: TProgressBar;
+    PB_3: TProgressBar;
+    PB_4: TProgressBar;
+    ComLed1: TComLed;
+    ComLed2: TComLed;
+    ComLed3: TComLed;
+    ComLed4: TComLed;
+    ComLed5: TComLed;
+    ComLed6: TComLed;
+    ComLed7: TComLed;
+    Label14: TLabel;
+    Label15: TLabel;
+    Label16: TLabel;
+    Label17: TLabel;
+    Label18: TLabel;
+    Label19: TLabel;
+    Label20: TLabel;
     procedure COMSettingsClick(Sender: TObject);
     procedure MultiButtClick(Sender: TObject);
     procedure ComPortAfterOpen(Sender: TObject);
     procedure ComPortAfterClose(Sender: TObject);
     procedure ComPortRxChar(Sender: TObject; Count: Integer);
-    procedure ComPortCTSChange(Sender: TObject; OnOff: Boolean);
-    procedure ComPortDSRChange(Sender: TObject; OnOff: Boolean);
-    procedure ComPortRLSDChange(Sender: TObject; OnOff: Boolean);
     procedure ComPortRxFlag(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -95,11 +107,15 @@ implementation
 
 {$R *.dfm}
 
+type
+  TRecords = array[1..4]of String[34];
+  TBuf = array[0..33] of char;
+
 const
   CRLF: string = Chr(13) + Chr(10);
 
 var
-  Slot: array[1..4] of String[34];
+  Slot: TRecords;
   GraphPos: array[1..4,1..2] of byte;
   GraphCol: array[1..4] of TColor;
   GraphDelay: integer = 60;
@@ -109,6 +125,7 @@ var
   LSlot: byte = 1;
   Logging: boolean = false;
   LastEvent: TDateTime = 0;
+  f1,f2,f3,f4: file of byte;
 
 procedure TForm1.COMSettingsClick(Sender: TObject);
 begin
@@ -181,6 +198,43 @@ end;
 function GetMinutes(s: byte): byte;
 begin
   GetMinutes := Ord(Slot[s][7]);
+end;
+
+function GetProgress(s: byte): byte;
+begin
+  Result := 0;
+  if (ShowHex(Ord(Slot[s][3]))[2]<>'0') then begin
+    case ShowHex(Ord(Slot[s][2]))[2] of
+      '8': case ShowHex(Ord(Slot[s][3]))[2] of
+             '5': Result := 50;
+             '7','8': Result := 100;
+           end;
+      '9': case ShowHex(Ord(Slot[s][3]))[2] of
+             '6': Result := 50;
+             '7','8': Result := 100;
+           end;
+      'a': case ShowHex(Ord(Slot[s][3]))[2] of
+             '4': Result := 33;
+             '5': Result := 66;
+             '7','8': Result := 100;
+           end;
+      'b': case ShowHex(Ord(Slot[s][3]))[2] of
+             '3': Result := 25;
+             '4': Result := 50;
+             '5': Result := 75;
+             '7','8': Result := 100;
+           end;
+      'c': case ShowHex(Ord(Slot[s][3]))[2] of
+             '1': Result := 16;
+             '2': Result := 33;
+             '3': Result := 50;
+             '4': Result := 66;
+             '5': Result := 83;
+             '7','8': Result := 100;
+           end;
+       'd','e','f': Result := 100;
+    end;
+  end else Result := 0;
 end;
 
 function FormatCaps(c: dword): string;
@@ -428,6 +482,37 @@ begin
   end;
 end;
 
+function MakeBuf(s: integer): TBuf;
+var i: integer;
+begin
+  for i:=1 to 34 do Result[i-1] := Slot[s][i];
+end;
+
+procedure DoLog(s: byte);
+var Buf: TBuf;
+begin
+  with Form1 do begin
+    case s of
+      1: if L1.Checked then begin
+           Buf := MakeBuf(1);
+           BlockWrite(f1,Buf,34);
+         end;
+      2: if L2.Checked then begin
+           Buf := MakeBuf(2);
+           BlockWrite(f2,Buf,34);
+         end;
+      3: if L3.Checked then begin
+           Buf := MakeBuf(3);
+           BlockWrite(f3,Buf,34);
+         end;
+      4: if L4.Checked then begin
+           Buf := MakeBuf(4);
+           BlockWrite(f4,Buf,34);
+         end;
+    end;
+  end;
+end;
+
 procedure GraphClear(Image: TImage);
 const linespace: integer = 50;   // horizontal helping lines (50 = 0,5V)
       minspace: integer = 30;    // vertical helping lines (30 = 30min)
@@ -542,14 +627,34 @@ begin
           LastEvent := now;
 //          Sync := '';
         end;
+        case LSlot of
+          1: begin
+               Edit1.Text := BuildHex(Slot[1]);
+               DoDisplay(1, D_1);
+               PB_1.Position := GetProgress(1);
+               DoLog(1);
+             end;
+          2: begin
+               Edit2.Text := BuildHex(Slot[2]);
+               DoDisplay(2, D_2);
+               PB_2.Position := GetProgress(2);
+               DoLog(2);
+             end;
+          3: begin
+               Edit3.Text := BuildHex(Slot[3]);
+               DoDisplay(3, D_3);
+               PB_3.Position := GetProgress(3);
+               DoLog(3);
+             end;
+          4: begin
+               Edit4.Text := BuildHex(Slot[4]);
+               DoDisplay(4, D_4);
+               PB_4.Position := GetProgress(4);
+               DoLog(4);
+             end;
+        end;
         Inc(LSlot);
         if LSlot>4 then LSlot := 1;
-        case LSlot of
-          1: R_1.Checked := true;
-          2: R_2.Checked := true;
-          3: R_3.Checked := true;
-          4: R_4.Checked := true;
-        end;
         if (LSlot=1) AND (GraphTime>=GraphDelay) then begin
           DoGraphDisp(Image1, 1);
           DoGraphDisp(Image1, 2);
@@ -557,34 +662,19 @@ begin
           DoGraphDisp(Image1, 4);
           GraphTime := 0;
         end;
-        if (LSlot=1) then Inc(GraphTime);
+        if (LSlot=1) then begin
+          Inc(GraphTime);
+          DoStatDisp(D_Stat);
+        end;
+        case LSlot of
+          1: R_1.Checked := true;
+          2: R_2.Checked := true;
+          3: R_3.Checked := true;
+          4: R_4.Checked := true;
+        end;
       end;
     end;
-    Edit1.Text := BuildHex(Slot[1]);
-    DoDisplay(1, D_1);
-    Edit2.Text := BuildHex(Slot[2]);
-    DoDisplay(2, D_2);
-    Edit3.Text := BuildHex(Slot[3]);
-    DoDisplay(3, D_3);
-    Edit4.Text := BuildHex(Slot[4]);
-    DoDisplay(4, D_4);
-    DoStatDisp(D_Stat);
   end;
-end;
-
-procedure TForm1.ComPortCTSChange(Sender: TObject; OnOff: Boolean);
-begin
-  L_CTS.Enabled := OnOff;
-end;
-
-procedure TForm1.ComPortDSRChange(Sender: TObject; OnOff: Boolean);
-begin
-  L_DSR.Enabled := OnOff;
-end;
-
-procedure TForm1.ComPortRLSDChange(Sender: TObject; OnOff: Boolean);
-begin
-  L_RLSD.Enabled := OnOff;
 end;
 
 procedure TForm1.ComPortRxFlag(Sender: TObject);
@@ -595,7 +685,7 @@ end;
 
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  if ComPort.Connected then ComPort.Close;  
+  if ComPort.Connected then ComPort.Close;
   SaveSettings;
 end;
 
@@ -688,24 +778,66 @@ begin
     Form1.LogButton.Caption := 'Start logging';
 end;
 
+function GetDateTimeString(): string;
+var y,m,d,h,i,s,ms: word;
+begin
+  DecodeDateTime(now,y,m,d,h,i,s,ms);
+  Result := '';
+  Result := Result + IntToStr(y);
+  if (m<10) then Result := Result + '0';
+  Result := Result + IntToStr(m);
+  if (d<10) then Result := Result + '0';
+  Result := Result + IntToStr(d);
+  if (h<10) then Result := Result + '0';
+  Result := Result + IntToStr(h);
+  if (i<10) then Result := Result + '0';
+  Result := Result + IntToStr(i);
+  if (s<10) then Result := Result + '0';
+  Result := Result + IntToStr(s);
+end;
+
 procedure TForm1.L1Click(Sender: TObject);
 begin
   StartStopCheck;
+  if (L1.Checked) then begin
+    AssignFile(f1,'Slot01_'+GetDateTimeString()+'.log');
+    Rewrite(f1);
+  end else begin
+    CloseFile(f1);
+  end;
 end;
 
 procedure TForm1.L2Click(Sender: TObject);
 begin
   StartStopCheck;
+  if (L2.Checked) then begin
+    AssignFile(f2,'Slot02_'+GetDateTimeString()+'.log');
+    Rewrite(f2);
+  end else begin
+    CloseFile(f2);
+  end;
 end;
 
 procedure TForm1.L3Click(Sender: TObject);
 begin
   StartStopCheck;
+  if (L3.Checked) then begin
+    AssignFile(f3,'Slot03_'+GetDateTimeString()+'.log');
+    Rewrite(f3);
+  end else begin
+    CloseFile(f3);
+  end;
 end;
 
 procedure TForm1.L4Click(Sender: TObject);
 begin
   StartStopCheck;
+  if (L4.Checked) then begin
+    AssignFile(f4,'Slot04_'+GetDateTimeString()+'.log');
+    Rewrite(f4);
+  end else begin
+    CloseFile(f4);
+  end;
 end;
 
 procedure TForm1.GraphDelayBarChange(Sender: TObject);
@@ -739,6 +871,7 @@ begin
     if (x>0) then GraphDelayBar.Position := 300-x else GraphDelayCtrl.Text := '##';
   end;
 end;
+
 
 end.
 
