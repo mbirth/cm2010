@@ -254,7 +254,20 @@ begin
       ComPort.DataBits := StrToDataBits(cf.ReadString('Communication','DataBits','8'));
       ComPort.StopBits := StrToStopBits(cf.ReadString('Communication','StopBits','1'));
       ComPort.Parity.Bits := StrToParity(cf.ReadString('Communication','Parity','None'));
-      ComPort.FlowControl.FlowControl := StrToFlowControl(cf.ReadString('Communication','FlowControl',''));
+      ComPort.Parity.Check := cf.ReadBool('Communication','Parity.Check',false);
+      ComPort.Parity.Replace := cf.ReadBool('Communication','Parity.Replace',false);
+      ComPort.Parity.ReplaceChar := Chr(cf.ReadInteger('Communication','Parity.ReplaceChar',0));
+      ComPort.FlowControl.FlowControl := StrToFlowControl(cf.ReadString('Communication','FlowControl','Custom'));
+      ComPort.FlowControl.ControlDTR := TDTRFlowControl(cf.ReadInteger('Communication','FlowControl.DTR',1));
+      ComPort.FlowControl.ControlRTS := TRTSFlowControl(cf.ReadInteger('Communication','FlowControl.RTS',0));
+      ComPort.FlowControl.DSRSensitivity := cf.ReadBool('Communication','FlowControl.DSRSensitivity',false);
+      ComPort.FlowControl.OutCTSFlow := cf.ReadBool('Communication','FlowControl.OutCTSFlow',false);
+      ComPort.FlowControl.OutDSRFlow := cf.ReadBool('Communication','FlowControl.OutDSRFlow',false);
+      ComPort.FlowControl.TxContinueOnXoff := cf.ReadBool('Communication','FlowControl.TxContinueOnXoff',false);
+      ComPort.FlowControl.XoffChar := Chr(cf.ReadInteger('Communication','FlowControl.XoffChar',19));
+      ComPort.FlowControl.XonChar := Chr(cf.ReadInteger('Communication','FlowControl.XonChar',17));
+      ComPort.FlowControl.XonXoffIn := cf.ReadBool('Communication','FlowControl.XonXoffIn',false);
+      ComPort.FlowControl.XonXoffOut := cf.ReadBool('Communication','FlowControl.XonXoffOut',false);
     end;
 
     GraphDelay := cf.ReadInteger('Slots','GraphDelay',60);
@@ -265,7 +278,6 @@ begin
     GraphCol[3] := TColor(cf.ReadInteger('Slots','3.Color',32768));
     GraphCol[4] := TColor(cf.ReadInteger('Slots','4.Color',16711935));
 
-    { TODO : Load settings on startup from INI-file }
     cf.Free;
   except
     on E: Exception do ShowMessage('ERROR: Could not read settings from ini-file!'+CRLF+'('+E.Message+')');
@@ -283,7 +295,20 @@ begin
       cf.WriteString('Communication', 'DataBits', DataBitsToStr(ComPort.DataBits));
       cf.WriteString('Communication', 'StopBits', StopBitsToStr(ComPort.StopBits));
       cf.WriteString('Communication', 'Parity', ParityToStr(ComPort.Parity.Bits));
+      cf.WriteBool('Communication', 'Parity.Check', ComPort.Parity.Check);
+      cf.WriteBool('Communication', 'Parity.Replace', ComPort.Parity.Replace);
+      cf.WriteInteger('Communication', 'Parity.ReplaceChar', Ord(ComPort.Parity.ReplaceChar));
       cf.WriteString('Communication', 'FlowControl', FlowControlToStr(ComPort.FlowControl.FlowControl));
+      cf.WriteInteger('Communication', 'FlowControl.DTR', Ord(ComPort.FlowControl.ControlDTR));
+      cf.WriteInteger('Communication', 'FlowControl.RTS', Ord(ComPort.FlowControl.ControlRTS));
+      cf.WriteBool('Communication', 'FlowControl.DSRSensitivity', ComPort.FlowControl.DSRSensitivity);
+      cf.WriteBool('Communication', 'FlowControl.OutCTSFlow', ComPort.FlowControl.OutCTSFlow);
+      cf.WriteBool('Communication', 'FlowControl.OutDSRFlow', ComPort.FlowControl.OutDSRFlow);
+      cf.WriteBool('Communication', 'FlowControl.TxContinueOnXoff', ComPort.FlowControl.TxContinueOnXoff);
+      cf.WriteInteger('Communication' ,'FlowControl.XoffChar', Ord(ComPort.FlowControl.XoffChar));
+      cf.WriteInteger('Communication', 'FlowControl.XonChar', Ord(ComPort.FlowControl.XonChar));
+      cf.WriteBool('Communication', 'FlowControl.XonXoffIn', ComPort.FlowControl.XonXoffIn);
+      cf.WriteBool('Communication', 'FlowControl.XonXoffOut', ComPort.FlowControl.XonXoffOut);
     end;
 
     cf.WriteInteger('Slots','GraphDelay',GraphDelay);
@@ -292,7 +317,6 @@ begin
     cf.WriteInteger('Slots','3.Color',Ord(GraphCol[3]));
     cf.WriteInteger('Slots','4.Color',Ord(GraphCol[4]));
 
-    { TODO : Save settings to INI-file }
     cf.Free;
   except
     on E: Exception do ShowMessage('ERROR: Could not write settings to ini-file!'+CRLF+'('+E.Message+')');
@@ -571,6 +595,7 @@ end;
 
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
+  if ComPort.Connected then ComPort.Close;  
   SaveSettings;
 end;
 
