@@ -59,8 +59,8 @@ type
     ComPort: TComPort;
     procedure COMSettingsClick(Sender: TObject);
     procedure MultiButtClick(Sender: TObject);
-    procedure ComPortOpen(Sender: TObject);
-    procedure ComPortClose(Sender: TObject);
+    procedure ComPortAfterOpen(Sender: TObject);
+    procedure ComPortAfterClose(Sender: TObject);
     procedure ComPortRxChar(Sender: TObject; Count: Integer);
     procedure ComPortCTSChange(Sender: TObject; OnOff: Boolean);
     procedure ComPortDSRChange(Sender: TObject; OnOff: Boolean);
@@ -123,12 +123,12 @@ begin
     ComPort.Open;
 end;
 
-procedure TForm1.ComPortOpen(Sender: TObject);
+procedure TForm1.ComPortAfterOpen(Sender: TObject);
 begin
   MultiButt.Caption := 'Stop capturing';
 end;
 
-procedure TForm1.ComPortClose(Sender: TObject);
+procedure TForm1.ComPortAfterClose(Sender: TObject);
 var i: integer;
 begin
   InSync := true;

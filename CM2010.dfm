@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 197
-  Top = 176
+  Left = 195
+  Top = 109
   Width = 721
   Height = 477
   Caption = 
@@ -498,6 +498,13 @@ object Form1: TForm1
     FlowControl.ControlRTS = rtsDisable
     FlowControl.XonXoffOut = False
     FlowControl.XonXoffIn = False
+    OnAfterOpen = ComPortAfterOpen
+    OnAfterClose = ComPortAfterClose
+    OnRxChar = ComPortRxChar
+    OnCTSChange = ComPortCTSChange
+    OnDSRChange = ComPortDSRChange
+    OnRLSDChange = ComPortRLSDChange
+    OnRxFlag = ComPortRxFlag
     Left = 160
     Top = 120
   end
