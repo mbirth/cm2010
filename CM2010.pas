@@ -72,6 +72,10 @@ type
     Label18: TLabel;
     Label19: TLabel;
     Label20: TLabel;
+    T_1: TLabel;
+    T_2: TLabel;
+    T_3: TLabel;
+    T_4: TLabel;
     procedure COMSettingsClick(Sender: TObject);
     procedure MultiButtClick(Sender: TObject);
     procedure ComPortAfterOpen(Sender: TObject);
@@ -423,11 +427,10 @@ begin
 end;
 
 procedure DoDisplay(s: byte; m: TMemo);
-var b2,b3,b4: string[2];
+var b2,b3: string[2];
 begin
   b2 := ShowHex(Ord(Slot[s][2]));
   b3 := ShowHex(Ord(Slot[s][3]));
-  b4 := ShowHex(Ord(Slot[s][4]));
   if (b2+b3='0000') then begin
     DoEmptyDisp(s, m);
     m.Enabled := false;
@@ -479,6 +482,23 @@ begin
   end else begin
     DoValDisp(s, m);
     m.Enabled := true;
+  end;
+end;
+
+function GetManType(s: byte): String;
+begin
+  case Ord(Slot[s][3]) AND $F0 of
+    $00: Result := 'Automatic';
+    $10: Result := '100-200';
+    $20: Result := '200-350';
+    $30: Result := '350-600';
+    $40: Result := '600-900';
+    $50: Result := '900-1200';
+    $60: Result := '1200-1500';
+    $70: Result := '1500-2200';
+    $80: Result := '2200-....';
+  else
+    Result := '?????????';
   end;
 end;
 
@@ -631,24 +651,28 @@ begin
           1: begin
                Edit1.Text := BuildHex(Slot[1]);
                DoDisplay(1, D_1);
+               T_1.Caption := GetManType(1);
                PB_1.Position := GetProgress(1);
                DoLog(1);
              end;
           2: begin
                Edit2.Text := BuildHex(Slot[2]);
                DoDisplay(2, D_2);
+               T_2.Caption := GetManType(2);
                PB_2.Position := GetProgress(2);
                DoLog(2);
              end;
           3: begin
                Edit3.Text := BuildHex(Slot[3]);
                DoDisplay(3, D_3);
+               T_3.Caption := GetManType(3);
                PB_3.Position := GetProgress(3);
                DoLog(3);
              end;
           4: begin
                Edit4.Text := BuildHex(Slot[4]);
                DoDisplay(4, D_4);
+               T_4.Caption := GetManType(4);
                PB_4.Position := GetProgress(4);
                DoLog(4);
              end;

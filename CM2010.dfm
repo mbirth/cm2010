@@ -135,6 +135,66 @@ object Form1: TForm1
     Height = 13
     Caption = 'secs'
   end
+  object T_1: TLabel
+    Left = 344
+    Top = 166
+    Width = 49
+    Height = 10
+    Alignment = taCenter
+    AutoSize = False
+    Caption = '---------'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -8
+    Font.Name = 'Small Fonts'
+    Font.Style = []
+    ParentFont = False
+  end
+  object T_2: TLabel
+    Left = 344
+    Top = 238
+    Width = 49
+    Height = 10
+    Alignment = taCenter
+    AutoSize = False
+    Caption = '---------'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -8
+    Font.Name = 'Small Fonts'
+    Font.Style = []
+    ParentFont = False
+  end
+  object T_3: TLabel
+    Left = 544
+    Top = 166
+    Width = 49
+    Height = 10
+    Alignment = taCenter
+    AutoSize = False
+    Caption = '---------'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -8
+    Font.Name = 'Small Fonts'
+    Font.Style = []
+    ParentFont = False
+  end
+  object T_4: TLabel
+    Left = 544
+    Top = 238
+    Width = 49
+    Height = 10
+    Alignment = taCenter
+    AutoSize = False
+    Caption = '---------'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -8
+    Font.Name = 'Small Fonts'
+    Font.Style = []
+    ParentFont = False
+  end
   object GraphDelayBar: TTrackBar
     Left = 648
     Top = 256
