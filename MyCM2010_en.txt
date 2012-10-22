@@ -1,0 +1,204 @@
+Conrad Charge Manager 2010
+
+Protocol overview
+
+
+Transfer settings: 9600 baud, 8 Data bits, no parity, 1 Stopbit
+Connection via Null modem cable.
+
+The CM2010 always sends info about the condition of each slot. The delay between 2 infos about the same slot is 1 second.
+
+It seems you can't send commands to the CM2010 because the circuit plan from www.conrad.de (512265-in-01-de-charge_manager_2010_schnittstellenb.pdf) shows no input for the charging controller.
+
+All values about a slot are sent in 34 Bytes. There are 4 Packets of 34 Bytes each.
+
+All values are in Big-Endian (Big-End-First; 65536 = 01 00 00; 256 = 01 00)
+
+
+Bytes Meaning
+----- ----------------------
+01    Slot (1-4)
+
+02    ??? Chosen Program; Lo: Display state (Details: see below)
+03    Hi: manually chosen capacity; Lo: current step in program (Details: see below)
+
+04    ???
+
+05    Internal counter/timer, counts back the 3 seconds after insertion of battery, where you have time to change settings. Otherwise it counts back from 60d and increases minute when 00.
+06    Hours
+07    Minutes
+
+08    ???
+
+09-10 Voltage (U) - only when charging, otherwise 00 00. Perhaps max. current for Delta-U-shut-off.
+
+11    ??? (perhaps approx. charge of battery?)
+12    ???
+13    ???
+
+14-15 Current (I)
+16-17 Voltage (U)
+18-20 Charged capacity (CCap)
+21-23 Discharged capacity (DCap)
+
+24    0Bh, if not charging, otherwise something else
+
+25-26 Fourth last voltage
+27-28 Third last voltage
+29-30 Second last voltage
+31-32 Last voltage
+33-34 Resistance in slot (5MOhm = 01 F4; no battery: FF FF)
+
+
+Bytes 02 and 03:
+
+02 03 04
+-- -- --
+00 00 00 No program, Slot empty
+
+01 00 00 Choice: Auto/Man: Auto
+02 00 00 Choice: Auto/Man: Manual
+(Counter in Byte 5 counts from 03 to 00 and then switches to next choice)
+
+02 10 00 Choice: Man: 100-200
+02 20 00 Choice: Man: 200-350
+02 30 00 Choice: Man: 350-600
+02 40 00 Choice: Man: 600-900
+02 50 00 Choice: Man: 900-1200
+02 60 00 Choice: Man: 1200-1500
+02 70 00 Choice: Man: 1500-2200
+02 80 00 Choice: Man: 2200-...
+(Counter in Byte 5 counts from 03 to 00 and then switches to next choice/runs program)
+
+03 xx 00 Choice: Auto: CHARGE
+04 xx 00 Choice: Auto: DISCHARGE
+05 xx 00 Choice: Auto: CHECK
+06 xx 00 Choice: Auto: CYCLE
+07 xx 00 Choice: Auto: ALIVE
+(xx - 00:Auto, 10-80:Man)
+(Counter in Byte 5 counts from 03 to 00 and then runs the program)
+
+08 05 01 Auto: CHA (Charges)
+
+09 06 00 Auto: DIS (Discharges)
+09 26 08 Man: 200-350: DIS (Discharges)
+
+0a 04 01 Auto: CHK (Discharges)
+0a 24 08 Man: 200-350: CHK (Discharges)
+
+0b 03 01 Auto: CYC (Charges)
+0b 04 01 Auto: CYC (Discharges)
+0b 05 04 Auto: CYC (Charges after Discharging)
+
+0c 01 01 Auto: ALV (Charges)
+0c 02 01 Auto: ALV (Discharges)
+0c 02 03 Auto: ALV (still Discharges)
+0c 02 04 Auto: ALV (still still Discharges)
+0c 02 08 Auto: ALV (Discharges after Charging)
+0c 03 01 Auto: ALV (Charges after Discharging)
+0c 03 02 Auto: ALV (Charges after Discharging immer immer noch)
+0c 03 03 Auto: ALV (Charges after Discharging immer noch)
+0c 04 01 Auto: ALV (Discharges after Charging)
+0c 04 03 Auto: ALV (Discharges after Charging after Discharging)
+0c 04 08 Auto: ALV (Discharges after Charging after Discharging)
+0c 05 01 Auto: ALV (Charges after Discharging after Charging after Discharging)
+0c 05 02 Auto: ALV (Charges after Discharging after Charging after Discharging)
+0c 05 04 Auto: ALV (Charges after Discharging)
+0c 42 06 Man: 600-900: ALV (Discharges after Charging)
+0c 44 06 Man: 600-900: ALV (Discharges after Charging after Discharging after Charging)
+
+0d 08 01 Auto: CYC (RDY/Fertig)
+0d 08 02 Auto: CHA (RDY/Fertig)
+0d 08 03 Auto: ALV (RDY/Fertig)
+0d 08 04 Auto: ALV (RDY/Fertig)
+0d 48 04 Man: 600-900: ALV (RDY/Fertig)
+
+0e 0c xx ERR
+
+1b 03 01 Auto: CYC (Charges immer noch)
+
+4c 03 03 Auto: ALV (Charges immer immer noch)
+4c 05 04 Auto: ALV (Charges after Discharging after Charging after Discharging after Charging)
+
+58 25 02 Man: 200-350: CHA (Charges)
+
+5b 23 02 Man: 200-350: CYC (Charges)
+
+5c 21 02 Man: 200-350: ALV (Charges)
+5c 41 04 Man: 600-900: ALV (Charges)
+5c 43 04 Man: 600-900: ALV (Charges after Discharging)
+5c 45 04 Man: 600-900: ALV (Charges (last phase))
+
+6b 03 03 Auto: CYC (still still still still Charges)
+
+6c 03 03 Auto: ALV (Charges after Discharging)
+6c 05 04 Auto: ALV (Charges after Discharging after Charging after Discharging after Charging)
+
+cb 03 04 Auto: CYC (still Charges)
+
+db 03 03 Auto: CYC (Charges ... for now)
+db 03 04 Auto: CYC (still still still Charges)
+
+dc 03 02 Auto: ALV (Charges after Discharging)
+dc 05 03 Auto: ALV (Charges ... for now)
+
+fb 03 03 Auto: CYC (still still Charges)
+
+
+
+The Lo-Part of Byte 2 reflects the current display:
+H bbbb Description
+- ---- -----------
+0 0000 ---
+1 0001 Choice: Auto/Man: Auto
+2 0010 Choice: Auto/Man: Manuell
+3 0011 Choice: Auto: CHARGE
+4 0100 Choice: Auto: DISCHARGE
+5 0101 Choice: Auto: CHECK
+6 0110 Choice: Auto: CYCLE
+7 0111 Choice: Auto: ALIVE
+8 1000 CHA
+9 1001 DIS
+a 1010 CHK
+b 1011 CYC
+c 1100 ALV
+d 1101 RDY
+e 1110 ERR
+f 1111 TRI
+
+
+
+The Lo-Part of Byte 3 reflects the program flow:
+H bbbb Description
+- ---- -----------
+0 0000 No program active
+1 0001 Charging      <--- ALV starts here
+2 0010 Discharging
+3 0011 Charging      <--- CYC starts here
+4 0100 Discharging   <--- CHK starts here
+5 0101 Charging      <--- CHA starts here
+6 0110 Discharging (is being skipped, only when DIS, the program starts here)
+7 0111 Trickle charge
+8 1000 RDY/Ready
+
+
+
+The Hi-Part of Byte 3 reflects the chosen battery capacity:
+H bbbb Description
+- ---- -----------
+0 0000 Automatic
+1 0001  100- 200 mAh
+2 0010  200- 350 mAh
+3 0011  350- 600 mAh
+4 0100  600- 900 mAh
+5 0101  900-1200 mAh
+6 0110 1200-1500 mAh
+7 0111 1500-2200 mAh
+8 1000 2200-...  mAh
+
+
+Byte 4 seems to reflect, if the capacity is being measured or not: 01 or 02 = Measuring, if 00, updating the battery symbol, 03/04 occurs during CYC.
+
+
+
+More informations of corrections via eMail to Markus Birth <mbirth@webwriters.de>.

@@ -1,0 +1,204 @@
+Conrad Charge Manager 2010
+
+Protokollübersicht
+
+
+Übertragungsrate: 9600 baud, 8 Datenbits, keine Parität, 1 Stopbit
+Verbindung via Nullmodemkabel.
+
+Der CM gibt kontinuierlich Daten über den Zustand der einzelnen Schächte aus. Der Abstand zwischen den Informationen über ein und denselben Schacht beträgt 1 Sekunde.
+
+Kommandos können scheinbar keine gesendet werden, da laut Schaltplan von www.conrad.de (512265-in-01-de-charge_manager_2010_schnittstellenb.pdf) die Ladeelektronik des Geräts keinen Eingang hat.
+
+Sämtliche Informationen zu einem Schacht werden in 34 Bytes gesendet. Es gibt somit 4 Pakete à 34 Bytes.
+
+Alle Werte sind in Big-Endian (Big-End-First; 65536 = 01 00 00; 256 = 01 00)
+
+
+Bytes Bedeutung
+----- ----------------------
+01    Ladeschacht (1-4)
+
+02    ??? Programm; Lo: Displayanzeige (Details: siehe unten)
+03    Hi: Manuell gewählte Kapazität; Lo: Momentane Stelle im Programm (Details: siehe unten)
+
+04    ???
+
+05    Interner Zähler/Timer, zählt nach Einlegen des Akkus die 3 Sekunden, die man Zeit hat, etwas einzugeben, rückwärts, ansonsten zählt es von 60d rückwarts und bei 00 erfolgt Umsprung auf nächste Minute
+06    Stunden
+07    Minuten
+
+08    ???
+
+09-10 Spannung (U) - nur beim Aufladen, sonst 00 00. Evtl. max. Spannung für Delta-U-Abschaltung.
+
+11    ??? (evtl. ungefährer Füllstand des Akkus?)
+12    ???
+13    ???
+
+14-15 Stromstärke (I)
+16-17 Spannung (U)
+18-20 Geladene Kapazität (CCap)
+21-23 Entladene Kapazität (DCap)
+
+24    0Bh, falls nicht geladen wird, sonst was anderes
+
+25-26 Vor-vor-vor-letzte Spannung
+27-28 Vor-vor-letzte Spannung
+29-30 Vor-letzte Spannung
+31-32 Letzte Spannung
+33-34 Widerstand im Schacht (5MOhm = 01 F4; kein Akku: FF FF)
+
+
+Bytes 02 und 03:
+
+02 03 04
+-- -- --
+00 00 00 Kein Programm, Schacht leer
+
+01 00 00 Wahl: Auto/Man: Auto
+02 00 00 Wahl: Auto/Man: Manuell
+(Zähler in Byte 5 zählt von 03 bis 00 und schaltet dann auf die nächste Auswahl)
+
+02 10 00 Wahl: Man: 100-200
+02 20 00 Wahl: Man: 200-350
+02 30 00 Wahl: Man: 350-600
+02 40 00 Wahl: Man: 600-900
+02 50 00 Wahl: Man: 900-1200
+02 60 00 Wahl: Man: 1200-1500
+02 70 00 Wahl: Man: 1500-2200
+02 80 00 Wahl: Man: 2200-...
+(Zähler in Byte 5 zählt von 03 bis 00 und schaltet dann auf die nächste Auswahl/startet Programm)
+
+03 xx 00 Wahl: Auto: CHARGE
+04 xx 00 Wahl: Auto: DISCHARGE
+05 xx 00 Wahl: Auto: CHECK
+06 xx 00 Wahl: Auto: CYCLE
+07 xx 00 Wahl: Auto: ALIVE
+(xx - 00:Auto, 10-80:Man)
+(Zähler in Byte 5 zählt von 03 bis 00 und startet dann das Programm)
+
+08 05 01 Auto: CHA (Lädt)
+
+09 06 00 Auto: DIS (Entlädt)
+09 26 08 Man: 200-350: DIS (Entlädt)
+
+0a 04 01 Auto: CHK (Entlädt)
+0a 24 08 Man: 200-350: CHK (Entlädt)
+
+0b 03 01 Auto: CYC (Lädt)
+0b 04 01 Auto: CYC (Entlädt)
+0b 05 04 Auto: CYC (Lädt nach Entladen)
+
+0c 01 01 Auto: ALV (Lädt)
+0c 02 01 Auto: ALV (Entlädt)
+0c 02 03 Auto: ALV (Entlädt immer noch)
+0c 02 04 Auto: ALV (Entlädt immer immer noch)
+0c 02 08 Auto: ALV (Entlädt nach Laden)
+0c 03 01 Auto: ALV (Lädt nach Entladen)
+0c 03 02 Auto: ALV (Lädt nach Entladen immer immer noch)
+0c 03 03 Auto: ALV (Lädt nach Entladen immer noch)
+0c 04 01 Auto: ALV (Entlädt nach Laden)
+0c 04 03 Auto: ALV (Entlädt nach Laden nach Entladen)
+0c 04 08 Auto: ALV (Entlädt nach Laden nach Entladen)
+0c 05 01 Auto: ALV (Lädt nach Entladen nach Laden nach Entladen)
+0c 05 02 Auto: ALV (Lädt nach Entladen nach Laden nach Entladen)
+0c 05 04 Auto: ALV (Lädt nach Entladen)
+0c 42 06 Man: 600-900: ALV (Entlädt nach Laden)
+0c 44 06 Man: 600-900: ALV (Entlädt nach Laden nach Entladen nach Laden)
+
+0d 08 01 Auto: CYC (RDY/Fertig)
+0d 08 02 Auto: CHA (RDY/Fertig)
+0d 08 03 Auto: ALV (RDY/Fertig)
+0d 08 04 Auto: ALV (RDY/Fertig)
+0d 48 04 Man: 600-900: ALV (RDY/Fertig)
+
+0e 0c xx ERR
+
+1b 03 01 Auto: CYC (Lädt immer noch)
+
+4c 03 03 Auto: ALV (Lädt immer immer noch)
+4c 05 04 Auto: ALV (Lädt nach Entladen nach Laden nach Entladen nach Laden)
+
+58 25 02 Man: 200-350: CHA (Lädt)
+
+5b 23 02 Man: 200-350: CYC (Lädt)
+
+5c 21 02 Man: 200-350: ALV (Lädt)
+5c 41 04 Man: 600-900: ALV (Lädt)
+5c 43 04 Man: 600-900: ALV (Lädt nach Entladen)
+5c 45 04 Man: 600-900: ALV (Lädt (letzte Phase))
+
+6b 03 03 Auto: CYC (Lädt immer immer immer immer noch)
+
+6c 03 03 Auto: ALV (Lädt nach Entladen)
+6c 05 04 Auto: ALV (Lädt nach Entladen nach Laden nach Entladen nach Laden)
+
+cb 03 04 Auto: CYC (Lädt immer noch)
+
+db 03 03 Auto: CYC (Lädt ... noch)
+db 03 04 Auto: CYC (Lädt immer immer immer noch)
+
+dc 03 02 Auto: ALV (Lädt nach Entladen)
+dc 05 03 Auto: ALV (Lädt ... noch)
+
+fb 03 03 Auto: CYC (Lädt immer immer noch)
+
+
+
+Der Lo-Part von Byte 2 gibt Auskunft über die aktuelle Display-Anzeige:
+H bbbb Beschreibung
+- ---- ------------
+0 0000 ---
+1 0001 Wahl: Auto/Man: Auto
+2 0010 Wahl: Auto/Man: Manuell
+3 0011 Wahl: Auto: CHARGE
+4 0100 Wahl: Auto: DISCHARGE
+5 0101 Wahl: Auto: CHECK
+6 0110 Wahl: Auto: CYCLE
+7 0111 Wahl: Auto: ALIVE
+8 1000 CHA
+9 1001 DIS
+a 1010 CHK
+b 1011 CYC
+c 1100 ALV
+d 1101 RDY
+e 1110 ERR
+f 1111 TRI
+
+
+
+Der Lo-Part von Byte 3 gibt Auskunft über den Ablauf des Programms:
+H bbbb Beschreibung
+- ---- ------------
+0 0000 Kein Programm aktiv
+1 0001 Laden         <--- ALV startet hier
+2 0010 Entladen
+3 0011 Laden         <--- CYC startet hier
+4 0100 Entladen      <--- CHK startet hier
+5 0101 Laden         <--- CHA startet hier
+6 0110 Entladen (wird übersprungen, nur bei DIS startet das Programm hier)
+7 0111 Erhaltungsladung (Trickle)
+8 1000 RDY/Fertig
+
+
+
+Der Hi-Part von Byte 3 gibt Auskunft über die gewählte Akku-Kapazität:
+H bbbb Beschreibung
+- ---- -------------
+0 0000 Automatik
+1 0001  100- 200 mAh
+2 0010  200- 350 mAh
+3 0011  350- 600 mAh
+4 0100  600- 900 mAh
+5 0101  900-1200 mAh
+6 0110 1200-1500 mAh
+7 0111 1500-2200 mAh
+8 1000 2200-...  mAh
+
+
+Byte 4 scheint anzuzeigen, ob gerade die Kapazität gemessen wird, oder nicht: 01 oder 02 = Messen, bei 00 aktualisiert er das Symbol, 03/04 kommt während CYC vor.
+
+
+
+Weitere Aufschlüsselungen oder Korrekturen bitte per Mail an Markus Birth <mbirth@webwriters.de>.
