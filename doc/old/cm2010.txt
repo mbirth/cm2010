@@ -1,0 +1,78 @@
+Serielle Schnittstelle des Charge-Managers 2010 von Conrad Elektronik
+
+Einstellungen: 9600 baud, 8N1
+Der CM wird mit einem Normalen Nullmodemkabel mit dem PC verbunden. 
+
+Der CM gibt konitinuirlich Daten über den Laduzustand der Akkus aus. Ob der CM
+Kommandos akzeptiert ist nicht bekannt. 
+
+Ein "Datensatz" besteht auf vier (jeweils eine pro Ladeschacht) 34 Byte 
+langen "Nachrichten".
+
+Die Nachrichten haben folgendes Format:
+
+16-Bit 'S' "Short" Werte sind Big-Endian!
+24-Bit 'M' ""Medium" Big-Endian :)
+
+ Byte   Bedeutung
+ 1	Ladeschacht
+ 2	Programm?
+ 3	Programm?
+ 4	? Sieht aus wie ein interner Zähler
+ 5	? "
+ 6	Stunden 
+ 7	Minuten (?)
+ 8	?
+ 9	S: Aktuelle Spannung (U) (Nur beim Aufladen, sonst null. Eventuell ein 
+ 	Speicher für die Max. Spannung um rechtzeitig abschalten zu können?
+ 10	''
+ 11	? (Ungefährer Ladestatus?)
+ 12	?
+ 13	?
+ 14	S: Aktuelle Stromstärke (I)
+ 15
+ 16	S: Aktuelle Spannung (U)
+ 17	''
+ 18	M:Geladene mAh	
+ 19	''
+ 20	''
+ 21	M: Entlade mAh
+ 22	''	
+ 23	''
+ 24	?  12 falls nicht geladen wird, sonst irgendwasanders
+ 25	S: Vor-Vor-Vor-letze gemessene Spannung
+ 26
+ 27	S: Vor-Vor-letze gemessene Spannung
+ 28
+ 29	S: Vorletze gemessene Spannung
+ 30	''
+ 31	S: Letze gemesse Spannung
+ 32	''
+ 33	S: Wenn kein Akku drin: FF Vielleicht der 'Widerstand' im Schacht?
+ 34	''
+ 
+Bedeutung von Byte zwei und drei (Programm)
+
+CHARGE:
+88 69 (Ladephase)
+13 72 (Programm beendet)
+
+CHECK:
+10 68 (Entladephase) (600-
+90 69 (Aufladephase)
+13 72 (Programm beendet)
+
+CHARGE: 
+88 (Ladephase)
+13 (Programm beendet)
+ 
+CHECK:  
+10 (Entladephase) 
+90 (Aufladephase)
+13 (Programm beendet)
+
+Byte drei:
+68 (Manuell,600 bis 900 mAh, Entladephase)
+69 (Manuell,600 bis 900 mAh, Aufladephase)
+72 (Manuell,600 bis 900 mAh, Laden beendet)
+88-133 (Manuell, 2200mAh - .., Aufladen)
